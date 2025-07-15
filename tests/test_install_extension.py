@@ -20,7 +20,8 @@ import unittest
 
 class TestExtension(unittest.TestCase):
 
-    def test_install_extension(self):
+    @classmethod
+    def setUpClass(cls):
         """Install extension via repository"""
         repo = str(Path(__file__).parent.parent.parent)
 
@@ -34,8 +35,23 @@ class TestExtension(unittest.TestCase):
             custom_directory=repo,
             source='USER'
         )
-        module_path = 'bl_ext.' + repo_module + '.addon_testing'
-        bpy.ops.preferences.addon_enable(module=module_path)
+        cls.module_path = 'bl_ext.' + repo_module + '.addon_testing'
+        bpy.ops.preferences.addon_enable(module=cls.module_path)
+
+    def test_addon_panel_exists(self):
+        """Check if add-on panel exists"""
+        import bpy
         self.assertTrue(hasattr(bpy.types, 'OBJECT_PT_test'))
+
+    def test_addon_operator(self):
+        """Check for and run add-on operator"""
+        import bpy
+        bpy.ops.object.test()
+
+    @classmethod
+    def tearDownClass(cls):
+        """Disable add-on"""
+        import bpy
+        bpy.ops.preferences.addon_disable(module=cls.module_path)
 
         
