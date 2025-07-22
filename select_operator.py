@@ -17,17 +17,45 @@
 import bpy
 
 
+class Item(bpy.types.PropertyGroup):
+    select: bpy.props.BoolProperty()
+
+
 class TestOperator(bpy.types.Operator):
     """Test operator that deselects all objects"""
     bl_idname = 'object.test'
     bl_label = 'Simple Object Operator'
+    bl_options = {'REGISTER', 'UNDO'}
+
+    action: bpy.props.EnumProperty(
+        name='Action',
+        items=[
+            ('DESELECT', 'Deselect', 'Deselect all objects'),
+            ('SELECT', 'Select', 'Select all objects')
+        ],
+        default='DESELECT'
+    )
+
+    objects_to_select: bpy.props.CollectionProperty(
+        type=Item
+    )
 
     @classmethod
     def poll(cls, context):
         return context.active_object is not None
 
     def execute(self, context):
-        return bpy.ops.object.select_all(action='DESELECT')
+        if self.objects_to_select:
+            for item in self.objects_to_select:
+                name, select = item.name, item.select
+                if name not in bpy.data.objects:
+                    self.report({'ERROR'}, f'Object {name} not found, skipping')
+                
+                bpy.data.objects[name].select_set(select)
+            context.view_layer.objects.active = context.selected_objects[0]
+            return {'FINISHED'}
+
+        return bpy.ops.object.select_all(action=self.action)
 
 
 def menu_func(self, context):
@@ -35,10 +63,12 @@ def menu_func(self, context):
 
 
 def register():
+    bpy.utils.register_class(Item)
     bpy.utils.register_class(TestOperator)
     bpy.types.VIEW3D_MT_object.append(menu_func)
 
 
 def unregister():
     bpy.utils.unregister_class(TestOperator)
+    bpy.utils.unregister_class(Item)
     bpy.types.VIEW3D_MT_object.remove(menu_func)

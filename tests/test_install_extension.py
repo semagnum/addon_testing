@@ -46,7 +46,19 @@ class TestExtension(unittest.TestCase):
     def test_addon_operator(self):
         """Check for and run add-on operator"""
         import bpy
-        bpy.ops.object.test()
+        
+        bpy.ops.object.test(action='DESELECT')
+        assert bpy.context.selected_objects == []
+
+        bpy.ops.object.test(action='SELECT')
+        assert all(obj.name in {'Cube', 'Camera', 'Light'} for obj in bpy.context.selected_objects)
+
+        bpy.ops.object.test(objects_to_select=[
+            {'name': 'Cube', 'select': True},
+            {'name': 'Camera', 'select': False}
+        ])
+        assert bpy.data.objects['Cube'].select_get()
+        assert not bpy.data.objects['Camera'].select_get()
 
     @classmethod
     def tearDownClass(cls):
