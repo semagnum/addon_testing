@@ -39,10 +39,15 @@ class TestAddon(unittest.TestCase):
         """Run homefile, resetting the file"""
         import bpy
         bpy.ops.wm.read_homefile()
-        
-    def test_import(self):
-        """Sanity check to importing bpy"""
-        import bpy
+    
+    def test_disable_enable(self):
+        """Validate enabling or disabling the add-on"""
+        try:
+            import bpy
+            bpy.ops.preferences.addon_disable(module='addon_testing')
+            bpy.ops.preferences.addon_enable(module='addon_testing')
+        except Exception as e:
+            self.fail(str(e))
 
     def test_addon_panel_exists(self):
         """Check if add-on panel exists"""

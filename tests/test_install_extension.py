@@ -38,6 +38,15 @@ class TestExtension(unittest.TestCase):
         cls.module_path = 'bl_ext.' + repo_module + '.addon_testing'
         bpy.ops.preferences.addon_enable(module=cls.module_path)
 
+    def test_disable_enable(self):
+        """Validate enabling or disabling the add-on"""
+        try:
+            import bpy
+            bpy.ops.preferences.addon_disable(module=self.module_path)
+            bpy.ops.preferences.addon_enable(module=self.module_path)
+        except Exception as e:
+            self.fail(str(e))
+
     def test_addon_panel_exists(self):
         """Check if add-on panel exists"""
         import bpy
