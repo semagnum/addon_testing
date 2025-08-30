@@ -28,11 +28,6 @@ class TestAddon(unittest.TestCase):
 
         import bpy
         bpy.ops.preferences.addon_install(filepath=cls.zip_path)
-
-        import addon_utils
-        addon_utils.modules_refresh()
-        bpy.ops.script.reload()
-
         bpy.ops.preferences.addon_enable(module='addon_testing')
 
     def setUp(self):
